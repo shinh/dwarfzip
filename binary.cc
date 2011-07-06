@@ -46,10 +46,12 @@ public:
         debug_info = p + sec->sh_offset;
       } else if (!strcmp(shstr + sec->sh_name, ".debug_abbrev")) {
         debug_abbrev = p + sec->sh_offset;
+      } else if (!strcmp(shstr + sec->sh_name, ".debug_str")) {
+        debug_str = p + sec->sh_offset;
       }
     }
 
-    if (!debug_info || !debug_abbrev)
+    if (!debug_info || !debug_abbrev || !debug_str)
       err(1, "no debug info: %s", filename);
   }
 
