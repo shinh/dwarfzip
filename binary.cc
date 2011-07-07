@@ -21,22 +21,22 @@ public:
     if (fd_ < 0)
       err(1, "open failed: %s", filename);
 
-    size_ = lseek(fd_, 0, SEEK_END);
-    size_ = (size_ + 0xfff) & ~0xfff;
+    size = lseek(fd_, 0, SEEK_END);
+    mapped_size = (size + 0xfff) & ~0xfff;
 
-    char* p = (char*)mmap(NULL, size_,
+    char* p = (char*)mmap(NULL, mapped_size,
                           PROT_READ, MAP_SHARED,
                           fd_, 0);
     if (p == MAP_FAILED)
       err(1, "mmap failed: %s", filename);
 
-    mapped_ = p;
+    head = p;
 
-    if (strncmp(mapped_, ELFMAG, SELFMAG)) {
+    if (strncmp(head, ELFMAG, SELFMAG)) {
       err(1, "not ELF: %s", filename);
     }
 
-    if (mapped_[EI_CLASS] != ELFCLASS64) {
+    if (head[EI_CLASS] != ELFCLASS64) {
       err(1, "not 64bit: %s", filename);
     }
 
@@ -51,16 +51,16 @@ public:
     for (int i = 0; i < ehdr->e_shnum; i++) {
       Elf_Shdr* sec = shdr + i;
       const char* pos = p + sec->sh_offset;
-      size_t size = sec->sh_size;
+      size_t sz = sec->sh_size;
       if (!strcmp(shstr + sec->sh_name, ".debug_info")) {
         debug_info = pos;
-        debug_info_len = size;
+        debug_info_len = sz;
       } else if (!strcmp(shstr + sec->sh_name, ".debug_abbrev")) {
         debug_abbrev = pos;
-        debug_abbrev_len = size;
+        debug_abbrev_len = sz;
       } else if (!strcmp(shstr + sec->sh_name, ".debug_str")) {
         debug_str = pos;
-        debug_str_len = size;
+        debug_str_len = sz;
       }
     }
 
@@ -69,14 +69,12 @@ public:
   }
 
   ~ELFBinary() {
-    munmap(mapped_, size_);
+    munmap(head, mapped_size);
     close(fd_);
   }
 
 private:
   int fd_;
-  off_t size_;
-  char* mapped_;
 };
 
 Binary* readBinary(const char* filename) {

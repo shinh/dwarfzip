@@ -5,6 +5,9 @@
 
 class Binary {
 public:
+  char* head;
+  size_t size;
+  size_t mapped_size;
   const char* debug_info;
   const char* debug_abbrev;
   const char* debug_str;
