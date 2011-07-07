@@ -58,7 +58,7 @@ private:
     last_offset_ = offset;
   }
 
-  virtual void onAbbrev(uint64_t number, uint64_t offset) {
+  virtual void onAbbrev(uint64_t, uint64_t offset) {
     //fprintf(stderr, "abbr %lu @%lx\n", number, last_offset_);
     abbrev_.add(offset - last_offset_);
     last_offset_ = offset;

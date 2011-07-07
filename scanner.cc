@@ -53,11 +53,6 @@ static int64_t sleb128(const uint8_t*& p) {
   return r;
 }
 
-static void bug(const char* msg) {
-  fprintf(stderr, "%s", msg);
-  abort();
-}
-
 template <class T>
 static void bug(const char* fmt, T v) {
   fprintf(stderr, fmt, v);
