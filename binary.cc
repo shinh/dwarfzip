@@ -32,6 +32,14 @@ public:
 
     mapped_ = p;
 
+    if (strncmp(mapped_, ELFMAG, SELFMAG)) {
+      err(1, "not ELF: %s", filename);
+    }
+
+    if (mapped_[EI_CLASS] != ELFCLASS64) {
+      err(1, "not 64bit: %s", filename);
+    }
+
     Elf_Ehdr* ehdr = (Elf_Ehdr*)p;
     if (!ehdr->e_shoff || !ehdr->e_shnum)
       err(1, "no section header: %s", filename);
