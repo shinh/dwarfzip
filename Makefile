@@ -12,3 +12,5 @@ dwarfstat: binary.o scanner.o dwarfstat.o dwarfstr.o
 
 clean:
 	rm -f *.o $(EXES)
+
+-include *.d
