@@ -34,7 +34,7 @@ dw_at['abbrev'] = sizes['abbrev']
 dw_form['CU'] = sizes['CU']
 dw_form['abbrev'] = sizes['abbrev']
 
-File.open('out.html', 'w') do |of|
+File.open(ARGV[1] || 'out.html', 'w') do |of|
   of.puts <<END
 <html>
   <head>
