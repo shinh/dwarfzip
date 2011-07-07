@@ -120,6 +120,9 @@ int main(int argc, char* argv[]) {
   if (fd < 0)
     err(1, "open failed: %s", argv[1]);
 
+  if (write(fd, "\xdfZIP\0\0\0\0", 8) < 0)
+    err(1, "write failed");
+
   size_t debug_info_offset = binary->debug_info - binary->head;
   if (write(fd, binary->head, debug_info_offset) < 0)
     err(1, "write failed");
@@ -133,11 +136,9 @@ int main(int argc, char* argv[]) {
   if (p == MAP_FAILED)
     err(1, "mmap failed");
 
-  ZipScanner zip(binary.get(), p + debug_info_offset);
+  ZipScanner zip(binary.get(), p + debug_info_offset + 8);
   zip.run();
   fflush(stderr);
-
-  munmap(p, binary->size);
 
   size_t out_size = zip.cur() - p;
   if (lseek(fd, out_size, SEEK_SET) < 0)
@@ -152,6 +153,10 @@ int main(int argc, char* argv[]) {
   if (ftruncate(fd, out_size) < 0)
     err(1, "ftruncate failed");
 
+  uint32_t* offset_outp = (uint32_t*)(p + 4);
+  *offset_outp = binary->size - out_size;
+
+  munmap(p, binary->size);
   close(fd);
 
   printf("%lu => %lu (%.2f%%)\n",
