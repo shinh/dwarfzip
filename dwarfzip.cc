@@ -28,9 +28,8 @@ public:
   ZipScanner(Binary* binary, uint8_t* out)
     : Scanner(binary),
       p_(out),
-      names_(0x4000),
-      forms_(256),
-      last_offset_(0) {
+      last_offset_(0),
+      cu_cnt_(0) {
   }
 
   const uint8_t* cur() const {
@@ -38,26 +37,14 @@ public:
   }
 
 private:
-  struct Stat {
-    int cnt;
-    size_t size;
-
-    Stat() : cnt(0), size(0) {}
-
-    void add(size_t s) {
-      cnt++;
-      size += s;
-    }
-  };
-
   virtual void onCU(CU* cu, uint64_t offset) {
     fprintf(stderr, "CU: %d @0x%lx len=%x version=%x ptrsize=%x\n",
-            cu_.cnt, last_offset_, cu->length, cu->version, cu->ptrsize);
+            cu_cnt_, last_offset_, cu->length, cu->version, cu->ptrsize);
 
     memcpy(p_, cu, sizeof(CU));
     p_ += sizeof(CU);
 
-    cu_.add(offset - last_offset_);
+    cu_cnt_++;
     last_offset_ = offset;
   }
 
@@ -65,32 +52,22 @@ private:
     uleb128o(number, p_);
 
     //fprintf(stderr, "abbr %lu @%lx\n", number, last_offset_);
-    abbrev_.add(offset - last_offset_);
     last_offset_ = offset;
   }
 
-  virtual void onAttr(uint16_t name, uint8_t form, uint64_t, uint64_t offset) {
+  virtual void onAttr(uint16_t, uint8_t, uint64_t, uint64_t offset) {
     size_t sz = offset - last_offset_;
     memcpy(p_, binary_->debug_info + last_offset_, sz);
     p_ += sz;
 
     //fprintf(stderr, "attr %d %d @%lx\n", name, form, last_offset_);
-    attr_.add(offset - last_offset_);
-    names_[name].add(offset - last_offset_);
-    forms_[form].add(offset - last_offset_);
 
     last_offset_ = offset;
   }
 
   uint8_t* p_;
-
-  Stat cu_;
-  Stat abbrev_;
-  Stat attr_;
-  vector<Stat> names_;
-  vector<Stat> forms_;
-
   uint64_t last_offset_;
+  int cu_cnt_;
 };
 
 int main(int argc, char* argv[]) {
