@@ -1,4 +1,4 @@
-CXXFLAGS=-g -O -W -Wall
+CXXFLAGS=-g -O -W -Wall -MMD
 
 EXES=dwarfzip dwarfstat
 
