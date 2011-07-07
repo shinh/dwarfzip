@@ -24,7 +24,6 @@ protected:
   virtual void onAttr(uint16_t name, uint8_t form,
                       uint64_t value, uint64_t offset) = 0;
 
-protected:
   Binary* binary_;
 };
 

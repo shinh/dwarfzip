@@ -1,3 +1,4 @@
+#include <dwarf.h>
 #include <err.h>
 #include <fcntl.h>
 #include <stdio.h>
@@ -8,6 +9,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include <map>
 #include <memory>
 #include <vector>
 
@@ -18,9 +20,26 @@ using namespace std;
 
 static void uleb128o(uint64_t v, uint8_t*& p) {
   do {
-    *p++ = v & 0x7f;
+    uint8_t b = v & 0x7f;
     v >>= 7;
+    if (v)
+      b |= 0x80;
+    *p++ = b;
   } while (v);
+}
+
+static void sleb128o(int64_t v, uint8_t*& p) {
+  bool done = false;
+  while (!done) {
+    uint8_t b = v & 0x7f;
+    v >>= 7;
+    if ((v == 0 && (b & 0x40) == 0) || (v == -1 && (b & 0x40))) {
+      done = true;
+    } else {
+      b |= 0x80;
+    }
+    *p++ = b;
+  }
 }
 
 class ZipScanner : public Scanner {
@@ -44,6 +63,8 @@ private:
     memcpy(p_, cu, sizeof(CU));
     p_ += sizeof(CU);
 
+    last_values_.clear();
+
     cu_cnt_++;
     last_offset_ = offset;
   }
@@ -55,10 +76,26 @@ private:
     last_offset_ = offset;
   }
 
-  virtual void onAttr(uint16_t, uint8_t, uint64_t, uint64_t offset) {
-    size_t sz = offset - last_offset_;
-    memcpy(p_, binary_->debug_info + last_offset_, sz);
-    p_ += sz;
+  virtual void onAttr(uint16_t name, uint8_t form, uint64_t value,
+                      uint64_t offset) {
+    switch (form) {
+    case DW_FORM_ref4:
+    case DW_FORM_strp: {
+      int32_t v = static_cast<int32_t>(value);
+      map<int, uint64_t>::iterator iter =
+        last_values_.insert(make_pair(name, 0)).first;
+      int32_t diff = v - static_cast<int32_t>(iter->second);
+      sleb128o(diff, p_);
+      iter->second = v;
+      break;
+    }
+
+    default: {
+      size_t sz = offset - last_offset_;
+      memcpy(p_, binary_->debug_info + last_offset_, sz);
+      p_ += sz;
+    }
+    }
 
     //fprintf(stderr, "attr %d %d @%lx\n", name, form, last_offset_);
 
@@ -68,6 +105,7 @@ private:
   uint8_t* p_;
   uint64_t last_offset_;
   int cu_cnt_;
+  map<int, uint64_t> last_values_;
 };
 
 int main(int argc, char* argv[]) {
@@ -116,5 +154,7 @@ int main(int argc, char* argv[]) {
 
   close(fd);
 
-  printf("%lu => %lu\n", binary->size, out_size);
+  printf("%lu => %lu (%.2f%%)\n",
+         binary->size, out_size,
+         ((float)out_size / binary->size) * 100);
 }
