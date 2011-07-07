@@ -42,12 +42,17 @@ public:
     const char* shstr = (const char*)(p + shdr[ehdr->e_shstrndx].sh_offset);
     for (int i = 0; i < ehdr->e_shnum; i++) {
       Elf_Shdr* sec = shdr + i;
+      const char* pos = p + sec->sh_offset;
+      size_t size = sec->sh_size;
       if (!strcmp(shstr + sec->sh_name, ".debug_info")) {
-        debug_info = p + sec->sh_offset;
+        debug_info = pos;
+        debug_info_len = size;
       } else if (!strcmp(shstr + sec->sh_name, ".debug_abbrev")) {
-        debug_abbrev = p + sec->sh_offset;
+        debug_abbrev = pos;
+        debug_abbrev_len = size;
       } else if (!strcmp(shstr + sec->sh_name, ".debug_str")) {
-        debug_str = p + sec->sh_offset;
+        debug_str = pos;
+        debug_str_len = size;
       }
     }
 
