@@ -42,6 +42,8 @@ static void sleb128o(int64_t v, uint8_t*& p) {
   }
 }
 
+static bool opt_d = false;
+
 class ZipScanner : public Scanner {
 public:
   ZipScanner(Binary* binary, uint8_t* out)
@@ -82,12 +84,23 @@ private:
     case DW_FORM_strp:
     case DW_FORM_data4:
     case DW_FORM_ref4: {
-      int32_t v = static_cast<int32_t>(value);
-      map<int, uint64_t>::iterator iter =
-        last_values_.insert(make_pair(name, 0)).first;
-      int32_t diff = v - static_cast<int32_t>(iter->second);
-      sleb128o(diff, p_);
-      iter->second = v;
+      if (opt_d) {
+        map<int, uint64_t>::iterator iter =
+          last_values_.insert(make_pair(name, 0)).first;
+        int32_t v = (static_cast<int32_t>(iter->second) +
+                     static_cast<int32_t>(value));
+        int32_t* op = (int32_t*)p_;
+        *op = v;
+        p_ += 4;
+        iter->second = v;
+      } else {
+        int32_t v = static_cast<int32_t>(value);
+        map<int, uint64_t>::iterator iter =
+          last_values_.insert(make_pair(name, 0)).first;
+        int32_t diff = v - static_cast<int32_t>(iter->second);
+        sleb128o(diff, p_);
+        iter->second = v;
+      }
       break;
     }
 
@@ -113,7 +126,6 @@ static const int HEADER_SIZE = 8;
 
 int main(int argc, char* argv[]) {
   const char* argv0 = argv[0];
-  bool opt_d = false;
   for (int i = 1; i < argc; i++) {
     if (argv[i][0] != '-') {
       continue;
@@ -146,14 +158,16 @@ int main(int argc, char* argv[]) {
   if (fd < 0)
     err(1, "open failed: %s", argv[1]);
 
-  if (write(fd, "\xdfZIP\0\0\0\0", HEADER_SIZE) < 0)
-    err(1, "write failed");
+  if (!opt_d) {
+    if (write(fd, "\xdfZIP\0\0\0\0", HEADER_SIZE) < 0)
+      err(1, "write failed");
+  }
 
   size_t debug_info_offset = binary->debug_info - binary->head;
   if (write(fd, binary->head, debug_info_offset) < 0)
     err(1, "write failed");
 
-  if (pwrite(fd, "", 1, binary->size - 1) < 0)
+  if (pwrite(fd, "", 1, binary->size + binary->reduced_size - 1) < 0)
     err(1, "pwrite failed");
 
   uint8_t* p = (uint8_t*)mmap(NULL, binary->mapped_size,
@@ -162,7 +176,8 @@ int main(int argc, char* argv[]) {
   if (p == MAP_FAILED)
     err(1, "mmap failed");
 
-  ZipScanner zip(binary.get(), p + debug_info_offset + HEADER_SIZE);
+  ZipScanner zip(binary.get(),
+                 p + debug_info_offset + (opt_d ? 0 : HEADER_SIZE));
   zip.run();
   fflush(stderr);
 
@@ -176,11 +191,15 @@ int main(int argc, char* argv[]) {
     err(1, "write failed");
 
   out_size += rest_size;
+  if (opt_d)
+    out_size -= HEADER_SIZE;
   if (ftruncate(fd, out_size) < 0)
     err(1, "ftruncate failed");
 
-  uint32_t* offset_outp = (uint32_t*)(p + 4);
-  *offset_outp = binary->size - out_size + HEADER_SIZE;
+  if (!opt_d) {
+    uint32_t* offset_outp = (uint32_t*)(p + 4);
+    *offset_outp = binary->size - out_size + HEADER_SIZE;
+  }
 
   munmap(p, binary->size);
   close(fd);

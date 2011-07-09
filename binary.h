@@ -18,6 +18,7 @@ public:
   size_t debug_abbrev_len;
   size_t debug_str_len;
   bool is_zipped;
+  size_t reduced_size;
 };
 
 Binary* readBinary(const char* filename);
