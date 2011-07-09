@@ -4,6 +4,9 @@ EXES=dwarfzip dwarfstat
 
 all: $(EXES)
 
+check: all
+	./runtests.sh
+
 dwarfzip: binary.o scanner.o dwarfzip.o
 	$(CXX) -o $@ $^
 
