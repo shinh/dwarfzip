@@ -142,11 +142,15 @@ void Scanner::run() {
         switch (attr.form) {
         case DW_FORM_addr:
         case DW_FORM_ref_addr:
-          value = (cu->ptrsize == 8 ? *(uint64_t*)p :
-                   cu->ptrsize == 4 ? *(uint32_t*)p :
-                   cu->ptrsize == 2 ? *(uint16_t*)p :
-                   (bug("Unknown ptrsize: %d\n", cu->ptrsize), 0));
-          p += cu->ptrsize;
+          if (binary_->is_zipped && cu->ptrsize == 8) {
+            value = sleb128(p);
+          } else {
+            value = (cu->ptrsize == 8 ? *(uint64_t*)p :
+                     cu->ptrsize == 4 ? *(uint32_t*)p :
+                     cu->ptrsize == 2 ? *(uint16_t*)p :
+                     (bug("Unknown ptrsize: %d\n", cu->ptrsize), 0));
+            p += cu->ptrsize;
+          }
           break;
 
         case DW_FORM_block1: {

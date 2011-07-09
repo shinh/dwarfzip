@@ -50,6 +50,7 @@ public:
     : Scanner(binary),
       p_(out),
       last_offset_(0),
+      cu_(NULL),
       cu_cnt_(0) {
   }
 
@@ -67,6 +68,7 @@ private:
 
     last_values_.clear();
 
+    cu_ = cu;
     cu_cnt_++;
     last_offset_ = offset;
   }
@@ -81,6 +83,29 @@ private:
   virtual void onAttr(uint16_t name, uint8_t form, uint64_t value,
                       uint64_t offset) {
     switch (form) {
+    case DW_FORM_addr:
+    case DW_FORM_ref_addr: {
+      if (cu_->ptrsize != 8)
+        break;
+
+      if (opt_d) {
+        map<int, uint64_t>::iterator iter =
+          last_values_.insert(make_pair(name, 0)).first;
+        int64_t v = iter->second + value;
+        int64_t* op = (int64_t*)p_;
+        *op = v;
+        p_ += 8;
+        iter->second = v;
+      } else {
+        map<int, uint64_t>::iterator iter =
+          last_values_.insert(make_pair(name, 0)).first;
+        int64_t diff = value - iter->second;
+        sleb128o(diff, p_);
+        iter->second = value;
+      }
+      break;
+    }
+
     case DW_FORM_strp:
     case DW_FORM_data4:
     case DW_FORM_ref4: {
@@ -118,6 +143,7 @@ private:
 
   uint8_t* p_;
   uint64_t last_offset_;
+  CU* cu_;
   int cu_cnt_;
   map<int, uint64_t> last_values_;
 };
