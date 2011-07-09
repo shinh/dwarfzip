@@ -112,12 +112,35 @@ private:
 static const int HEADER_SIZE = 8;
 
 int main(int argc, char* argv[]) {
+  const char* argv0 = argv[0];
+  bool opt_d = false;
+  for (int i = 1; i < argc; i++) {
+    if (argv[i][0] != '-') {
+      continue;
+    }
+    if (!strcmp(argv[i], "-d")) {
+      opt_d = true;
+    } else {
+      fprintf(stderr, "Unknown option: %s\n", argv[i]);
+    }
+    argc--;
+    argv++;
+  }
+
   if (argc < 3) {
-    fprintf(stderr, "Usage: %s binary output\n", argv[0]);
+    fprintf(stderr, "Usage: %s [-d] binary output\n", argv0);
     exit(1);
   }
 
   auto_ptr<Binary> binary(readBinary(argv[1]));
+
+  if (opt_d && !binary->is_zipped) {
+    fprintf(stderr, "%s is not compressed\n", argv[1]);
+    exit(1);
+  } else if (!opt_d && binary->is_zipped) {
+    fprintf(stderr, "%s is already compressed\n", argv[1]);
+    exit(1);
+  }
 
   int fd = open(argv[2], O_RDWR | O_CREAT | O_TRUNC, 0644);
   if (fd < 0)
