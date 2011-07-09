@@ -97,7 +97,7 @@ void Scanner::run() {
   vector<Abbrev> abbrevs;
   const uint8_t* p = dinfo;
 
-  while (p < dinfo_end) {
+  while (p + sizeof(CU) < dinfo_end) {
     CU* cu = (CU*)p;
     if (cu->length == 0 || cu->length == 0xffffffff) {
       bug("unimplemented cu length: %x\n", cu->length);
@@ -195,8 +195,12 @@ void Scanner::run() {
         case DW_FORM_data4:
         case DW_FORM_ref4:
           // TODO: Consider offset_size for DW_FORM_strp
-          value = *(uint32_t*)p;
-          p += 4;
+          if (binary_->is_zipped) {
+            value = sleb128(p);
+          } else {
+            value = *(uint32_t*)p;
+            p += 4;
+          }
           break;
 
         case DW_FORM_data8:
@@ -234,6 +238,9 @@ void Scanner::run() {
       }
     }
 
-    assert(p == cu_end);
+    if (!binary_->is_zipped)
+      assert(p == cu_end);
   }
+
+  assert(p == dinfo_end);
 }

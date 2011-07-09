@@ -14,6 +14,16 @@
 #define Elf_Ehdr Elf64_Ehdr
 #define Elf_Shdr Elf64_Shdr
 
+Binary::Binary()
+  : debug_info(NULL),
+    debug_abbrev(NULL),
+    debug_str(NULL),
+    debug_info_len(0),
+    debug_abbrev_len(0),
+    debug_str_len(0),
+    is_zipped(false) {
+}
+
 class ELFBinary : public Binary {
 public:
   explicit ELFBinary(const char* filename) {
@@ -30,13 +40,22 @@ public:
     if (p == MAP_FAILED)
       err(1, "mmap failed: %s", filename);
 
+    mapped_head = p;
+
+    size_t offset_after_debug_info = 0;
+    if (!strncmp(p, "\xdfZIP", 4)) {
+      is_zipped = true;
+      offset_after_debug_info = *(uint32_t*)(p + 4);
+      p += 8;
+    }
+
     head = p;
 
-    if (strncmp(head, ELFMAG, SELFMAG)) {
+    if (strncmp(p, ELFMAG, SELFMAG)) {
       err(1, "not ELF: %s", filename);
     }
 
-    if (head[EI_CLASS] != ELFCLASS64) {
+    if (p[EI_CLASS] != ELFCLASS64) {
       err(1, "not 64bit: %s", filename);
     }
 
@@ -46,15 +65,20 @@ public:
     if (!ehdr->e_shstrndx)
       err(1, "no section name: %s", filename);
 
-    Elf_Shdr* shdr = (Elf_Shdr*)(p + ehdr->e_shoff);
+    Elf_Shdr* shdr = (Elf_Shdr*)(p + ehdr->e_shoff - offset_after_debug_info);
     const char* shstr = (const char*)(p + shdr[ehdr->e_shstrndx].sh_offset);
+    shstr -= offset_after_debug_info;
+    bool debug_info_seen = false;
     for (int i = 0; i < ehdr->e_shnum; i++) {
       Elf_Shdr* sec = shdr + i;
       const char* pos = p + sec->sh_offset;
+      if (debug_info_seen)
+        pos -= offset_after_debug_info;
       size_t sz = sec->sh_size;
       if (!strcmp(shstr + sec->sh_name, ".debug_info")) {
         debug_info = pos;
-        debug_info_len = sz;
+        debug_info_len = sz - offset_after_debug_info;
+        debug_info_seen = true;
       } else if (!strcmp(shstr + sec->sh_name, ".debug_abbrev")) {
         debug_abbrev = pos;
         debug_abbrev_len = sz;

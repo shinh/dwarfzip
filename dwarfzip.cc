@@ -79,8 +79,9 @@ private:
   virtual void onAttr(uint16_t name, uint8_t form, uint64_t value,
                       uint64_t offset) {
     switch (form) {
-    case DW_FORM_ref4:
-    case DW_FORM_strp: {
+    case DW_FORM_strp:
+    case DW_FORM_data4:
+    case DW_FORM_ref4: {
       int32_t v = static_cast<int32_t>(value);
       map<int, uint64_t>::iterator iter =
         last_values_.insert(make_pair(name, 0)).first;
@@ -108,6 +109,8 @@ private:
   map<int, uint64_t> last_values_;
 };
 
+static const int HEADER_SIZE = 8;
+
 int main(int argc, char* argv[]) {
   if (argc < 3) {
     fprintf(stderr, "Usage: %s binary output\n", argv[0]);
@@ -120,7 +123,7 @@ int main(int argc, char* argv[]) {
   if (fd < 0)
     err(1, "open failed: %s", argv[1]);
 
-  if (write(fd, "\xdfZIP\0\0\0\0", 8) < 0)
+  if (write(fd, "\xdfZIP\0\0\0\0", HEADER_SIZE) < 0)
     err(1, "write failed");
 
   size_t debug_info_offset = binary->debug_info - binary->head;
@@ -136,7 +139,7 @@ int main(int argc, char* argv[]) {
   if (p == MAP_FAILED)
     err(1, "mmap failed");
 
-  ZipScanner zip(binary.get(), p + debug_info_offset + 8);
+  ZipScanner zip(binary.get(), p + debug_info_offset + HEADER_SIZE);
   zip.run();
   fflush(stderr);
 
@@ -154,7 +157,7 @@ int main(int argc, char* argv[]) {
     err(1, "ftruncate failed");
 
   uint32_t* offset_outp = (uint32_t*)(p + 4);
-  *offset_outp = binary->size - out_size;
+  *offset_outp = binary->size - out_size + HEADER_SIZE;
 
   munmap(p, binary->size);
   close(fd);
