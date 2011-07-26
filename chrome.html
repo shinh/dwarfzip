@@ -1,0 +1,146 @@
+<html>
+  <head>
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+      google.load("visualization", "1", {packages:["corechart"]});
+      google.setOnLoadCallback(drawChart);
+      function drawChart() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'DW_AT');
+        data.addColumn('number', 'size');
+        data.addRows(40);
+data.setValue(0, 0, 'type');
+data.setValue(0, 1, 152416984);
+data.setValue(1, 0, 'name');
+data.setValue(1, 1, 81132144);
+data.setValue(2, 0, 'abbrev');
+data.setValue(2, 1, 66434099);
+data.setValue(3, 0, 'sibling');
+data.setValue(3, 1, 52447688);
+data.setValue(4, 0, 'MIPS_linkage_name');
+data.setValue(4, 1, 43982951);
+data.setValue(5, 0, 'decl_line');
+data.setValue(5, 1, 25901693);
+data.setValue(6, 0, 'decl_file');
+data.setValue(6, 1, 18767380);
+data.setValue(7, 0, 'declaration');
+data.setValue(7, 1, 14315170);
+data.setValue(8, 0, 'external');
+data.setValue(8, 1, 13152725);
+data.setValue(9, 0, 'artificial');
+data.setValue(9, 1, 11008059);
+data.setValue(10, 0, 'low_pc');
+data.setValue(10, 1, 8414984);
+data.setValue(11, 0, 'high_pc');
+data.setValue(11, 1, 8355192);
+data.setValue(12, 0, 'location');
+data.setValue(12, 1, 8075590);
+data.setValue(13, 0, 'data_member_location');
+data.setValue(13, 1, 6893973);
+data.setValue(14, 0, 'specification');
+data.setValue(14, 1, 6176832);
+data.setValue(15, 0, 'const_value');
+data.setValue(15, 1, 4208303);
+data.setValue(16, 0, 'byte_size');
+data.setValue(16, 1, 3611890);
+data.setValue(17, 0, 'import');
+data.setValue(17, 1, 3377752);
+data.setValue(18, 0, 'frame_base');
+data.setValue(18, 1, 3322123);
+data.setValue(19, 0, 'accessibility');
+data.setValue(19, 1, 2864799);
+data.setValue(20, 0, 'abstract_origin');
+data.setValue(20, 1, 2217696);
+data.setValue(21, 0, 'containing_type');
+data.setValue(21, 1, 1318276);
+data.setValue(22, 0, 'vtable_elem_location');
+data.setValue(22, 1, 560686);
+data.setValue(23, 0, 'virtuality');
+data.setValue(23, 1, 216626);
+data.setValue(24, 0, 'inline');
+data.setValue(24, 1, 182796);
+data.setValue(25, 0, 'encoding');
+data.setValue(25, 1, 127801);
+data.setValue(26, 0, 'bit_offset');
+data.setValue(26, 1, 90474);
+data.setValue(27, 0, 'bit_size');
+data.setValue(27, 1, 90474);
+data.setValue(28, 0, 'upper_bound');
+data.setValue(28, 1, 83308);
+data.setValue(29, 0, 'CU');
+data.setValue(29, 1, 62381);
+data.setValue(30, 0, 'entry_pc');
+data.setValue(30, 1, 39096);
+data.setValue(31, 0, 'ranges');
+data.setValue(31, 1, 32604);
+data.setValue(32, 0, 'producer');
+data.setValue(32, 1, 23866);
+data.setValue(33, 0, 'comp_dir');
+data.setValue(33, 1, 23659);
+data.setValue(34, 0, 'stmt_list');
+data.setValue(34, 1, 22684);
+data.setValue(35, 0, 'prototyped');
+data.setValue(35, 1, 15111);
+data.setValue(36, 0, 'language');
+data.setValue(36, 1, 5677);
+data.setValue(37, 0, 'call_line');
+data.setValue(37, 1, 3215);
+data.setValue(38, 0, 'call_file');
+data.setValue(38, 1, 1774);
+data.setValue(39, 0, 'GNU_vector');
+data.setValue(39, 1, 26);
+        var chart = new google.visualization.PieChart(document.getElementById('DW_AT'));
+        chart.draw(data, {width: 800, height: 600, title: 'DW_AT'});
+      }
+    </script>
+    <script type="text/javascript">
+      google.load("visualization", "1", {packages:["corechart"]});
+      google.setOnLoadCallback(drawChart);
+      function drawChart() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'DW_FORM');
+        data.addColumn('number', 'size');
+        data.addRows(15);
+data.setValue(0, 0, 'ref4');
+data.setValue(0, 1, 217955228);
+data.setValue(1, 0, 'strp');
+data.setValue(1, 1, 121455168);
+data.setValue(2, 0, 'abbrev');
+data.setValue(2, 1, 66434099);
+data.setValue(3, 0, 'flag');
+data.setValue(3, 1, 38491091);
+data.setValue(4, 0, 'data1');
+data.setValue(4, 1, 37156667);
+data.setValue(5, 0, 'addr');
+data.setValue(5, 1, 16809296);
+data.setValue(6, 0, 'block1');
+data.setValue(6, 1, 15943233);
+data.setValue(7, 0, 'data2');
+data.setValue(7, 1, 15563046);
+data.setValue(8, 0, 'string');
+data.setValue(8, 1, 3729855);
+data.setValue(9, 0, 'data4');
+data.setValue(9, 1, 3511756);
+data.setValue(10, 0, 'sdata');
+data.setValue(10, 1, 2259962);
+data.setValue(11, 0, 'block4');
+data.setValue(11, 1, 345677);
+data.setValue(12, 0, 'block2');
+data.setValue(12, 1, 186670);
+data.setValue(13, 0, 'data8');
+data.setValue(13, 1, 74432);
+data.setValue(14, 0, 'CU');
+data.setValue(14, 1, 62381);
+        var chart = new google.visualization.PieChart(document.getElementById('DW_FORM'));
+        chart.draw(data, {width: 800, height: 600, title: 'DW_FORM'});
+      }
+    </script>
+  </head>
+
+  <body>
+     .debug_info in /data/chrome - 539.978MB
+<div id="DW_AT"></div>
+<div id="DW_FORM"></div>
+    CU and abbrev mean CU header and abbrev number, specifically
+  </body>
+</html>
