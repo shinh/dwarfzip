@@ -5,7 +5,7 @@
 
 class Binary {
 public:
-  Binary();
+  Binary(int fd, char* p, size_t sz, size_t msz);
 
   char* head;
   size_t size;
@@ -19,6 +19,9 @@ public:
   size_t debug_str_len;
   bool is_zipped;
   size_t reduced_size;
+
+protected:
+  int fd_;
 };
 
 Binary* readBinary(const char* filename);

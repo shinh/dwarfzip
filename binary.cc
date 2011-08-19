@@ -15,11 +15,11 @@
 #define Elf_Ehdr Elf64_Ehdr
 #define Elf_Shdr Elf64_Shdr
 
-Binary::Binary()
+Binary::Binary(int fd, char* p, size_t sz, size_t msz)
   : head(NULL),
-    size(0),
-    mapped_head(NULL),
-    mapped_size(0),
+    size(sz),
+    mapped_head(p),
+    mapped_size(msz),
     debug_info(NULL),
     debug_abbrev(NULL),
     debug_str(NULL),
@@ -27,27 +27,15 @@ Binary::Binary()
     debug_abbrev_len(0),
     debug_str_len(0),
     is_zipped(false),
-    reduced_size(0) {
+    reduced_size(0),
+    fd_(fd) {
 }
 
 class ELFBinary : public Binary {
 public:
-  explicit ELFBinary(const char* filename) {
-    fd_ = open(filename, O_RDONLY);
-    if (fd_ < 0)
-      err(1, "open failed: %s", filename);
-
-    size = lseek(fd_, 0, SEEK_END);
-    mapped_size = (size + 0xfff) & ~0xfff;
-
-    char* p = (char*)mmap(NULL, mapped_size,
-                          PROT_READ, MAP_SHARED,
-                          fd_, 0);
-    if (p == MAP_FAILED)
-      err(1, "mmap failed: %s", filename);
-
-    mapped_head = p;
-
+  explicit ELFBinary(const char* filename,
+                     int fd, char* p, size_t sz, size_t msz)
+    : Binary(fd, p, sz, msz) {
     reduced_size = 0;
     if (!strncmp(p, "\xdfZIP", 4)) {
       is_zipped = true;
@@ -102,11 +90,21 @@ public:
     munmap(head, mapped_size);
     close(fd_);
   }
-
-private:
-  int fd_;
 };
 
 Binary* readBinary(const char* filename) {
-  return new ELFBinary(filename);
+  int fd = open(filename, O_RDONLY);
+  if (fd < 0)
+    err(1, "open failed: %s", filename);
+
+  size_t size = lseek(fd, 0, SEEK_END);
+  size_t mapped_size = (size + 0xfff) & ~0xfff;
+
+  char* p = (char*)mmap(NULL, mapped_size,
+                        PROT_READ, MAP_SHARED,
+                        fd, 0);
+  if (p == MAP_FAILED)
+    err(1, "mmap failed: %s", filename);
+
+  return new ELFBinary(filename, fd, p, size, mapped_size);
 }
