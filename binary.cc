@@ -31,27 +31,23 @@ Binary::Binary(int fd, char* p, size_t sz, size_t msz)
     fd_(fd) {
 }
 
+static bool isDwarfZip(char* p) {
+  return !strncmp(p, "\xdfZIP", 4);
+}
+
 class ELFBinary : public Binary {
 public:
   explicit ELFBinary(const char* filename,
                      int fd, char* p, size_t sz, size_t msz)
     : Binary(fd, p, sz, msz) {
     reduced_size = 0;
-    if (!strncmp(p, "\xdfZIP", 4)) {
+    if (isDwarfZip(p)) {
       is_zipped = true;
       reduced_size = *(uint32_t*)(p + 4);
       p += 8;
     }
 
     head = p;
-
-    if (strncmp(p, ELFMAG, SELFMAG)) {
-      err(1, "not ELF: %s", filename);
-    }
-
-    if (p[EI_CLASS] != ELFCLASS64) {
-      err(1, "not 64bit: %s", filename);
-    }
 
     Elf_Ehdr* ehdr = (Elf_Ehdr*)p;
     if (!ehdr->e_shoff || !ehdr->e_shnum)
@@ -90,6 +86,16 @@ public:
     munmap(head, mapped_size);
     close(fd_);
   }
+
+  static bool isELF(const char* p) {
+    if (strncmp(p, ELFMAG, SELFMAG)) {
+      return false;
+    }
+    if (p[EI_CLASS] != ELFCLASS64) {
+      err(1, "non 64bit ELF isn't supported yet");
+    }
+    return true;
+  }
 };
 
 Binary* readBinary(const char* filename) {
@@ -98,7 +104,7 @@ Binary* readBinary(const char* filename) {
     err(1, "open failed: %s", filename);
 
   size_t size = lseek(fd, 0, SEEK_END);
-  if (size < 8)
+  if (size < 8 + 16)
     err(1, "too small file: %s", filename);
 
   size_t mapped_size = (size + 0xfff) & ~0xfff;
@@ -109,5 +115,12 @@ Binary* readBinary(const char* filename) {
   if (p == MAP_FAILED)
     err(1, "mmap failed: %s", filename);
 
-  return new ELFBinary(filename, fd, p, size, mapped_size);
+  char* header = p;
+  if (isDwarfZip(header)) {
+    header += 8;
+  }
+  if (ELFBinary::isELF(header)) {
+    return new ELFBinary(filename, fd, p, size, mapped_size);
+  }
+  err(1, "unknown file format: %s", filename);
 }
