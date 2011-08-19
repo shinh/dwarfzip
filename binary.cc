@@ -98,6 +98,9 @@ Binary* readBinary(const char* filename) {
     err(1, "open failed: %s", filename);
 
   size_t size = lseek(fd, 0, SEEK_END);
+  if (size < 8)
+    err(1, "too small file: %s", filename);
+
   size_t mapped_size = (size + 0xfff) & ~0xfff;
 
   char* p = (char*)mmap(NULL, mapped_size,
