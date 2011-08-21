@@ -8,10 +8,10 @@ check: all
 	./runtests.sh
 
 dwarfzip: binary.o scanner.o dwarfzip.o
-	$(CXX) -o $@ $^
+	$(CXX) -o $@ $^ $(CXXFLAGS)
 
 dwarfstat: binary.o scanner.o dwarfstat.o dwarfstr.o
-	$(CXX) -o $@ $^
+	$(CXX) -o $@ $^ $(CXXFLAGS)
 
 clean:
 	rm -f *.o $(EXES)
