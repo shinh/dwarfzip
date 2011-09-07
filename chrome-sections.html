@@ -1,0 +1,153 @@
+<html>
+  <head>
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+      google.load("visualization", "1", {packages:["corechart"]});
+      google.setOnLoadCallback(drawChart);
+      function drawChart() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'section');
+        data.addColumn('number', 'size');
+        data.addRows(46);
+data.setValue(0, 0, '.debug_info');
+data.setValue(0, 1, 539978561);
+data.setValue(1, 0, '.debug_pubnames');
+data.setValue(1, 1, 89078685);
+data.setValue(2, 0, '.debug_loc');
+data.setValue(2, 1, 63123843);
+data.setValue(3, 0, '.debug_str');
+data.setValue(3, 1, 60763674);
+data.setValue(4, 0, '.text');
+data.setValue(4, 1, 56637224);
+data.setValue(5, 0, '.strtab');
+data.setValue(5, 1, 37307751);
+data.setValue(6, 0, '.debug_line');
+data.setValue(6, 1, 30996036);
+data.setValue(7, 0, '.rodata');
+data.setValue(7, 1, 27792392);
+data.setValue(8, 0, '.symtab');
+data.setValue(8, 1, 17534712);
+data.setValue(9, 0, '.eh_frame');
+data.setValue(9, 1, 13673708);
+data.setValue(10, 0, '.debug_ranges');
+data.setValue(10, 1, 13399504);
+data.setValue(11, 0, '.debug_abbrev');
+data.setValue(11, 1, 12227174);
+data.setValue(12, 0, '.debug_aranges');
+data.setValue(12, 1, 11234064);
+data.setValue(13, 0, '.rela.dyn');
+data.setValue(13, 1, 11124192);
+data.setValue(14, 0, '.eh_frame_hdr');
+data.setValue(14, 1, 3412732);
+data.setValue(15, 0, '.data.rel.ro.loca');
+data.setValue(15, 1, 2435936);
+data.setValue(16, 0, '.data.rel.ro');
+data.setValue(16, 1, 1769512);
+data.setValue(17, 0, '.bss');
+data.setValue(17, 1, 621390);
+data.setValue(18, 0, '.data');
+data.setValue(18, 1, 217184);
+data.setValue(19, 0, '.dynsym');
+data.setValue(19, 1, 57672);
+data.setValue(20, 0, '.rela.plt');
+data.setValue(20, 1, 54936);
+data.setValue(21, 0, '.dynstr');
+data.setValue(21, 1, 52816);
+data.setValue(22, 0, '.got');
+data.setValue(22, 1, 44104);
+data.setValue(23, 0, '.plt');
+data.setValue(23, 1, 36640);
+data.setValue(24, 0, '.debug_frame');
+data.setValue(24, 1, 22488);
+data.setValue(25, 0, '.got.plt');
+data.setValue(25, 1, 18336);
+data.setValue(26, 0, '.hash');
+data.setValue(26, 1, 17832);
+data.setValue(27, 0, '.gnu.version');
+data.setValue(27, 1, 4806);
+data.setValue(28, 0, '.ctors');
+data.setValue(28, 1, 3464);
+data.setValue(29, 0, '.gcc_except_table');
+data.setValue(29, 1, 2180);
+data.setValue(30, 0, '.comment');
+data.setValue(30, 1, 1422);
+data.setValue(31, 0, 'google_malloc');
+data.setValue(31, 1, 1326);
+data.setValue(32, 0, 'malloc_hook');
+data.setValue(32, 1, 1278);
+data.setValue(33, 0, '.dynamic');
+data.setValue(33, 1, 1216);
+data.setValue(34, 0, '.gnu.version_r');
+data.setValue(34, 1, 944);
+data.setValue(35, 0, '.shstrtab');
+data.setValue(35, 1, 477);
+data.setValue(36, 0, '.gnu.hash');
+data.setValue(36, 1, 428);
+data.setValue(37, 0, '.note.gnu.build-i');
+data.setValue(37, 1, 36);
+data.setValue(38, 0, '.note.ABI-tag');
+data.setValue(38, 1, 32);
+data.setValue(39, 0, '.interp');
+data.setValue(39, 1, 28);
+data.setValue(40, 0, '.note.gnu.gold-ve');
+data.setValue(40, 1, 28);
+data.setValue(41, 0, '.init');
+data.setValue(41, 1, 24);
+data.setValue(42, 0, '.dtors');
+data.setValue(42, 1, 16);
+data.setValue(43, 0, '.fini');
+data.setValue(43, 1, 14);
+data.setValue(44, 0, '.tbss');
+data.setValue(44, 1, 12);
+data.setValue(45, 0, '.jcr');
+data.setValue(45, 1, 8);
+        var chart = new google.visualization.PieChart(document.getElementById('section'));
+        chart.draw(data, {width: 450, height: 300, title: 'section'});
+      }
+    </script>
+    <script type="text/javascript">
+      google.load("visualization", "1", {packages:["corechart"]});
+      google.setOnLoadCallback(drawChart);
+      function drawChart() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'type');
+        data.addColumn('number', 'size');
+        data.addRows(13);
+data.setValue(0, 0, 'DWARF');
+data.setValue(0, 1, 820824029);
+data.setValue(1, 0, 'PROGBITS');
+data.setValue(1, 1, 106047528);
+data.setValue(2, 0, 'STRTAB');
+data.setValue(2, 1, 37361044);
+data.setValue(3, 0, 'SYMTAB');
+data.setValue(3, 1, 17534712);
+data.setValue(4, 0, 'RELA');
+data.setValue(4, 1, 11179128);
+data.setValue(5, 0, 'NOBITS');
+data.setValue(5, 1, 621402);
+data.setValue(6, 0, 'DYNSYM');
+data.setValue(6, 1, 57672);
+data.setValue(7, 0, 'HASH');
+data.setValue(7, 1, 17832);
+data.setValue(8, 0, 'VERSYM');
+data.setValue(8, 1, 4806);
+data.setValue(9, 0, 'DYNAMIC');
+data.setValue(9, 1, 1216);
+data.setValue(10, 0, 'VERNEED');
+data.setValue(10, 1, 944);
+data.setValue(11, 0, 'GNU_HASH');
+data.setValue(11, 1, 428);
+data.setValue(12, 0, 'NOTE');
+data.setValue(12, 1, 96);
+        var chart = new google.visualization.PieChart(document.getElementById('type'));
+        chart.draw(data, {width: 450, height: 300, title: 'type'});
+      }
+    </script>
+  </head>
+
+  <body>
+     /data/chrome - 993.65MB
+<div id="section"></div>
+<div id="type"></div>
+  </body>
+</html>
