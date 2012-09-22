@@ -1,4 +1,4 @@
-CXXFLAGS=-g -O -W -Wall -MMD -I.
+CXXFLAGS=-g -O -W -Wall -MMD -I. -I/usr/include/libdwarf
 
 EXES=dwarfzip dwarfstat
 

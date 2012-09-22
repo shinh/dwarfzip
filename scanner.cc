@@ -176,7 +176,8 @@ void Scanner::run() {
           break;
         }
 
-        case DW_FORM_block: {
+        case DW_FORM_block:
+        case DW_FORM_exprloc: {
           value = (uint64_t)p;
           uint64_t size = uleb128(p);
           p += size;
@@ -198,6 +199,7 @@ void Scanner::run() {
         case DW_FORM_strp:
         case DW_FORM_data4:
         case DW_FORM_ref4:
+        case DW_FORM_sec_offset:
           // TODO: Consider offset_size for DW_FORM_strp
           if (binary_->is_zipped) {
             value = sleb128(p);
@@ -226,11 +228,11 @@ void Scanner::run() {
           value = (uint64_t)uleb128(p);
           break;
 
+        case DW_FORM_flag_present:
+          break;
+
         case DW_FORM_ref_udata:
         case DW_FORM_indirect:
-        case DW_FORM_sec_offset:
-        case DW_FORM_exprloc:
-        case DW_FORM_flag_present:
         case DW_FORM_ref_sig8:
 
         default:
