@@ -1,4 +1,5 @@
 #include <dwarf.h>
+#include <stdio.h>
 
 #include <vector>
 
@@ -13,7 +14,7 @@ static vector<const char*> g_dw_form_str;
     g_dw_at_str[x] = #x;                        \
   } while (0)
 
-#define DEFINE_DW_AT_GNU(x,v) do {              \
+#define DEFINE_DW_AT_EXT(x,v) do {              \
     if (g_dw_at_str.size() <= v)                \
       g_dw_at_str.resize(v + 1);                \
     g_dw_at_str[v] = #x;                        \
@@ -30,8 +31,11 @@ void initDwarfStr() {
 }
 
 const char* DW_AT_STR(int value) {
-  if (value < 0 || value >= (int)g_dw_at_str.size())
-    return "***ERROR***";
+  if (value < 0 || value >= (int)g_dw_at_str.size() || !g_dw_at_str[value]) {
+    static char buf[256];
+    sprintf(buf, "ERRROR(%d)", value);
+    return buf;
+  }
   return g_dw_at_str[value];
 }
 
